@@ -1,13 +1,15 @@
 import gtfsToHtml from 'gtfs-to-html';
 import ejs from "ejs";
 import {config} from "./lib/constants.mjs";
-import {getTimetablesListData} from "./lib/utils.mjs";
+import {getFormattedTimetablePage, getTimetablePagesForAgency, getTimetablesListData} from "./lib/utils.mjs";
 import {getAgencyGeoJSON} from "./lib/geojson-utils.mjs";
 import {openDb} from "gtfs";
 import {fileURLToPath} from "node:url";
 import path from "node:path";
-import fs from 'fs/promises';
+import fs from "fs";
+import fsPromise from 'fs/promises';
 import webpack from 'webpack';
+import _ from "lodash";
 import webpackConfig from "../webpack/prod.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -26,13 +28,45 @@ try {
 }
 
 const renderTemplates = async () => {
+  // Index page
   const homepageContent = await ejs.renderFile(path.join(__dirname, "frontend_template.ejs"), {
     backendData: {
       timetablePages: await getTimetablesListData(config),
       geojson: getAgencyGeoJSON(config),
     }
   });
-  await fs.writeFile(path.join(__dirname, "../dist/index.html"), homepageContent);
+  await fsPromise.writeFile(path.join(__dirname, "../dist/index.html"), homepageContent);
+
+  // Copy static folder to dist
+  fs.cpSync(path.join(__dirname, "../public"), path.join(__dirname, "../dist"), {recursive: true});
+
+  // Individual timetable pages
+  const timetableIds = _.uniq(_.map(getTimetablePagesForAgency(config), "timetable_page_id"));
+  _.each(timetableIds, async (timetablePageId) => {
+    const timetablePage = await getFormattedTimetablePage(
+      timetablePageId,
+      config
+    );
+
+    const pageContent = await ejs.renderFile(path.join(__dirname, "frontend_template.ejs"), {
+      backendData: {
+        pageData: timetablePage,
+        config,
+      }
+    });
+
+    const folderName = path.join(__dirname, `../dist/timetables/${timetablePageId}`);
+
+    try {
+      if (!fs.existsSync(folderName)) {
+        fs.mkdirSync(folderName, { recursive: true });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    await fsPromise.writeFile(path.join(__dirname, `../dist/timetables/${timetablePageId}/index.html`), pageContent);
+  });
 };
 
 const renderWebpackApp = () => {
@@ -59,13 +93,3 @@ const renderWebpackApp = () => {
 
 await renderTemplates();
 renderWebpackApp();
-
-// gtfsToHtml(config)
-//   .then(() => {
-//     console.log('HTML Generation Successful');
-//     process.exit();
-//   })
-//   .catch((err) => {
-//     console.error(err);
-//     process.exit(1);
-//   });

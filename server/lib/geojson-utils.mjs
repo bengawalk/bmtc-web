@@ -92,3 +92,34 @@ export function getAgencyGeoJSON(config) {
   const geojson = mergeGeojson(shapesGeojsons, stopsGeojsons);
   return simplifyGeoJSON(geojson, config);
 }
+
+export function prepareMapData(timetable) {
+  const routes = {}
+  const minifiedGeojson = {
+    type: 'FeatureCollection',
+    features: []
+  }
+
+  for (const feature of timetable.geojson.features) {
+    if (feature.geometry.type === 'LineString') {
+      feature.properties = {
+        route_color: feature.properties.route_color
+      }
+      minifiedGeojson.features.push(feature)
+    } else if (feature.geometry.type === 'Point') {
+      for (const route of feature.properties.routes) {
+        routes[route.route_id] = route
+      }
+
+      feature.properties.routes = feature.properties.routes.map(route => route.route_id)
+
+      minifiedGeojson.features.push(_.omit(feature, ['location_type', 'tts_stop_name']))
+    }
+  }
+
+  return {
+    id: `timetable_id_${formatHtmlId(timetable.timetable_id)}`,
+    routes,
+    geojson: minifiedGeojson
+  }
+}

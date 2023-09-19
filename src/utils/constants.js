@@ -1,1 +1,0 @@
-console.log(MAPBOX_TOKEN);

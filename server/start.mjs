@@ -68,18 +68,18 @@ router.get('/', async (request, response, next) => {
 router.get('/timetables/:timetablePageId', async (request, response, next) => {
   const { timetablePageId } = request.params;
 
-  if (!timetablePageId) {
-    return next(new Error('No timetablePageId provided'));
-  }
-
   try {
     const timetablePage = await getFormattedTimetablePage(
       timetablePageId,
       config
     );
 
-    const html = await generateTimetableHTML(timetablePage, config);
-    response.send(html);
+    response.render("frontend_template", {
+      backendData: {
+        pageData: timetablePage,
+        config,
+      }
+    });
   } catch (error) {
     next(error);
   }
