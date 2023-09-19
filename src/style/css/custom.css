@@ -1,0 +1,26 @@
+.overview-wrapper {
+  display: flex;
+  align-items: stretch;
+  height: 100vh;
+}
+
+@media screen and (max-width: 700px) {
+
+}
+
+.overview-list {
+  width: 500px;
+}
+
+#overview-search {
+  padding: 20px 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+#overview-search-input {
+  background-color: #efefef;
+  font: inherit;
+  padding: 5px 10px;
+  height: 36px;
+  width: 100%;
+}

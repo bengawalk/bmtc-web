@@ -1,0 +1,16 @@
+{
+  "agencies": [
+    {
+      "agency_key": "bmtc",
+      "path": "./data.zip"
+    }
+  ],
+  "allowEmptyTimetables": false,
+  "beautify": true,
+  "csvOptions": {
+  },
+  "defaultOrientation": "vertical",
+  "showMap": false,
+  "sqlitePath": "dist/bmtc.sqlite",
+  "skipImport": false
+}

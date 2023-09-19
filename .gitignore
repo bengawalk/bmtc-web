@@ -1,0 +1,7 @@
+dist
+html
+node_modules
+bmtc.sqlite
+
+.DS_Store
+.idea
