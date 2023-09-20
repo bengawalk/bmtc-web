@@ -27,6 +27,16 @@ try {
   throw error;
 }
 
+const createFolderIfDoesntExist = (folderName) => {
+  try {
+    if (!fs.existsSync(folderName)) {
+      fs.mkdirSync(folderName, { recursive: true });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 const renderTemplates = async () => {
   // Index page
   const homepageContent = await ejs.renderFile(path.join(__dirname, "frontend_template.ejs"), {
@@ -47,6 +57,7 @@ const renderTemplates = async () => {
       timetablePageId,
       config
     );
+    const routeName = timetablePage?.timetables[0]?.routes[0]?.route_short_name;
 
     const pageContent = await ejs.renderFile(path.join(__dirname, "frontend_template.ejs"), {
       backendData: {
@@ -55,17 +66,13 @@ const renderTemplates = async () => {
       }
     });
 
-    const folderName = path.join(__dirname, `../dist/timetables/${timetablePageId}`);
+    const timetableFolderName = path.join(__dirname, `../dist/timetables/${timetablePageId}`);
+    const routeFolderName = path.join(__dirname, `../dist/routes/${routeName}`);
 
-    try {
-      if (!fs.existsSync(folderName)) {
-        fs.mkdirSync(folderName, { recursive: true });
-      }
-    } catch (err) {
-      console.error(err);
-    }
+    [timetableFolderName, routeFolderName].forEach(createFolderIfDoesntExist);
 
     await fsPromise.writeFile(path.join(__dirname, `../dist/timetables/${timetablePageId}/index.html`), pageContent);
+    await fsPromise.writeFile(path.join(__dirname, `../dist/routes/${routeName}/index.html`), pageContent);
   });
 };
 

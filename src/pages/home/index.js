@@ -6,8 +6,6 @@ import HomeMap from "./home_map";
 
 const { timetablePages } = BACKEND_DATA;
 
-console.log(timetablePages);
-
 const Homepage = () => {
   const [searchText, setSearchText] = useState("");
   const [filteredPages, setFilteredPages] = useState(timetablePages);
@@ -45,7 +43,7 @@ const Homepage = () => {
             return (
             <a
               className="block p-2 border-b border-slate-200 hover:bg-slate-200 hover:no-underline"
-              href={t.relativePath} data-route-ids={t.route_ids ? t.route_ids.join(',') : ''}
+              href={`/routes/${routes[0].route_short_name}`} data-route-ids={t.route_ids ? t.route_ids.join(',') : ''}
               key={t.timetable_page_label}
             >
               <div className="text-lg text-gray-800 leading-none">

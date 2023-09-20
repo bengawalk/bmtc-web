@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
 
+import _ from "lodash";
+
 import {
   cloneDeep,
   compact,
@@ -1665,4 +1667,16 @@ export const getTimetablesListData = async (config) => {
     timetablePages.push(timetablePage);
   }
   return timetablePages;
+}
+
+const getTimetablePageIdByRoute = (routeName, config) => {
+  const timetablePages = getTimetablePagesForAgency(config);
+  console.log(timetablePages);
+  const matchingTimetable = _.find(timetablePages, t => t?.timetables[0]?.routes[0]?.route_short_name === routeName);
+  return matchingTimetable.timetable_page_id;
+};
+
+export const getFormattedRoutePage = (routeId, config) => {
+  const timetablePageId = getTimetablePageIdByRoute(routeId, config);
+  return getFormattedTimetablePage(timetablePageId, config);
 }

@@ -19,6 +19,10 @@ const router = createBrowserRouter([
     path: "/timetables/:timetable_id",
     element: <TimetablePage />,
   },
+  {
+    path: "/routes/:route_id",
+    element: <TimetablePage />,
+  },
 ]);
 
 const App = () => {

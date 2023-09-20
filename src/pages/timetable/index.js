@@ -26,7 +26,6 @@ class TimetablePage extends React.PureComponent {
   initMap = () => {
     const container = this.mapContainer.current;
     const { geojson, routes } = prepareMapData(_.values(pageData.consolidatedTimetables)[0]);
-    console.log(routes);
     createMap(container, geojson, routes);
   }
 
@@ -40,8 +39,6 @@ class TimetablePage extends React.PureComponent {
       memo[timetable.dayList].push(timetable);
       return memo;
     }, {});
-
-    console.log(groupedTimetables);
 
     return (
       <div className="timetable-page menu-type-jump">

@@ -1,7 +1,5 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFileSync } from 'node:fs';
-import { map } from 'lodash-es';
 import { openDb } from 'gtfs';
 
 import express from 'express';
@@ -9,17 +7,14 @@ import logger from 'morgan';
 import webpack from "webpack";
 import webpackDevMiddleware from "webpack-dev-middleware";
 
-import { formatTimetableLabel } from './lib/formatters.mjs';
 import {
-  setDefaultConfig,
-  getTimetablePagesForAgency,
+  getFormattedRoutePage,
   getFormattedTimetablePage,
-  generateOverviewHTML,
-  generateTimetableHTML, getTimetablesListData,
+  getTimetablesListData,
 } from './lib/utils.mjs';
 import webpackConfig from "../webpack/dev.mjs";
 import {getAgencyGeoJSON} from "./lib/geojson-utils.mjs";
-import {config, selectedConfig} from "./lib/constants.mjs";
+import {config} from "./lib/constants.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -71,6 +66,29 @@ router.get('/timetables/:timetablePageId', async (request, response, next) => {
   try {
     const timetablePage = await getFormattedTimetablePage(
       timetablePageId,
+      config
+    );
+
+    response.render("frontend_template", {
+      backendData: {
+        pageData: timetablePage,
+        config,
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/*
+ * Show a specific timetable page
+ */
+router.get('/routes/:routeId', async (request, response, next) => {
+  const { routeId } = request.params;
+
+  try {
+    const timetablePage = await getFormattedRoutePage(
+      routeId,
       config
     );
 
